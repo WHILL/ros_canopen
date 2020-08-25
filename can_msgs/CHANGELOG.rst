@@ -2,6 +2,18 @@
 Changelog for package can_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.8.4 (2020-08-22)
+------------------
+
+0.8.3 (2020-05-07)
+------------------
+* Bump CMake version to avoid CMP0048 warning
+  Signed-off-by: ahcorde <ahcorde@gmail.com>
+* Contributors: ahcorde
+
+0.8.2 (2019-11-04)
+------------------
+
 0.8.1 (2019-07-14)
 ------------------
 * Set C++ standard to c++14
