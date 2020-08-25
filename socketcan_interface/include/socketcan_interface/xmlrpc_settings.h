@@ -26,12 +26,12 @@ private:
         while (value->getType() == XmlRpc::XmlRpcValue::TypeStruct && (delim_pos = n.find('/')) != std::string::npos){
             std::string segment = n.substr(0, delim_pos);
             if (!value->hasMember(segment)) return false;
-            value = &((*value)[segment]);
+            value = &( const_cast< XmlRpc::XmlRpcValue &> (*value)[segment]);
             n.erase(0, delim_pos+1);
         }
         if(value->hasMember(n)){
             std::stringstream sstr;
-            sstr << (*value)[n];
+            sstr << const_cast< XmlRpc::XmlRpcValue &>(*value)[n];
             repr = sstr.str();
             return true;
         }
