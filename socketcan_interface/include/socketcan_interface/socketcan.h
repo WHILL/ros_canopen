@@ -24,6 +24,7 @@ class SocketCANInterface : public AsioDriver<boost::asio::posix::stream_descript
     bool loopback_;
     int sc_;
     can_err_mask_t error_mask_, fatal_error_mask_;
+    SettingsConstSharedPtr settings_;
 
     static can_err_mask_t parse_error_mask(SettingsConstSharedPtr settings, const std::string &entry, can_err_mask_t defaults) {
         can_err_mask_t mask = 0;
@@ -44,7 +45,7 @@ class SocketCANInterface : public AsioDriver<boost::asio::posix::stream_descript
     }
 public:
     SocketCANInterface()
-    : loopback_(false), sc_(-1), error_mask_(0), fatal_error_mask_(0)
+    : loopback_(false), sc_(-1), error_mask_(0), fatal_error_mask_(0), settings_(NULL)
     {}
 
     virtual bool doesLoopBack() const{
@@ -62,6 +63,8 @@ public:
         return init(device, loopback, SettingsConstSharedPtr());
     }
     virtual bool init(const std::string &device, bool loopback, SettingsConstSharedPtr settings) override {
+      settings_ = settings;
+
       const can_err_mask_t fatal_errors = ( CAN_ERR_TX_TIMEOUT   /* TX timeout (by netdevice driver) */
                                           | CAN_ERR_BUSOFF       /* bus off */
                                           | CAN_ERR_BUSERROR     /* bus error (may flood!) */
@@ -81,7 +84,7 @@ public:
     virtual bool recover(){
         if(!getState().isReady()){
             shutdown();
-            return init(device_, loopback_, error_mask_, fatal_error_mask_);
+            return init(device_, loopback_, settings_);
         }
         return getState().isReady();
     }
