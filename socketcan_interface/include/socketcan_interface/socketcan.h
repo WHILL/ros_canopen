@@ -25,6 +25,8 @@ class SocketCANInterface : public AsioDriver<boost::asio::posix::stream_descript
     int sc_;
     can_err_mask_t error_mask_, fatal_error_mask_;
     SettingsConstSharedPtr settings_;
+    bool has_recv_error_;
+    bool has_resumption_receive_after_error_;
 
     static can_err_mask_t parse_error_mask(SettingsConstSharedPtr settings, const std::string &entry, can_err_mask_t defaults) {
         can_err_mask_t mask = 0;
@@ -83,8 +85,10 @@ public:
 
     virtual bool recover(){
         if(!getState().isReady()){
-            shutdown();
-            return init(device_, loopback_, settings_);
+            if((has_recv_error_ && has_resumption_receive_after_error_) || !has_recv_error_){
+                shutdown();
+                return init(device_, loopback_, settings_);
+            }
         }
         return getState().isReady();
     }
@@ -140,6 +144,8 @@ protected:
             loopback_ = loopback;
             error_mask_ = error_mask;
             fatal_error_mask_ = fatal_error_mask;
+            has_recv_error_ = false;
+            has_resumption_receive_after_error_ = false;
 
             int sc = socket( PF_CAN, SOCK_RAW, CAN_RAW );
             if(sc < 0){
@@ -248,11 +254,15 @@ protected:
                     setInternalError(input_.id);
                     setNotReady();
                 }
+                has_recv_error_ = true;
             }else{
                 input_.is_extended = (frame_.can_id & CAN_EFF_FLAG) ? 1 :0;
                 input_.id = frame_.can_id & (input_.is_extended ? CAN_EFF_MASK : CAN_SFF_MASK);
                 input_.is_error = 0;
                 input_.is_rtr = (frame_.can_id & CAN_RTR_FLAG) ? 1 : 0;
+                if(has_recv_error_){
+                    has_resumption_receive_after_error_ = true;
+                }
             }
 
         }
