@@ -123,7 +123,7 @@ namespace socketcan_bridge
       driver_->translateError(s.internal_error, err);
       if (!s.internal_error)
       {
-        ROS_INFO("State: %s, asio: %s", err.c_str(), s.error_code.message().c_str());
+        ROS_DEBUG("State: %s, asio: %s", err.c_str(), s.error_code.message().c_str());
       }
       else
       {

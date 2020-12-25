@@ -72,7 +72,7 @@ bool MotorChain::setup_chain() {
             dur.fromSec(boost::chrono::duration<double>(update_duration_).count());
             ROS_INFO_STREAM("Using fixed control period: " << dur);
         }else{
-            ROS_INFO("Using real-time control period");
+            ROS_DEBUG("Using real-time control period");
         }
         cm_.reset(new ControllerManagerLayer(robot_layer_, nh_, dur));
         add(cm_);

@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
   }
     else
   {
-    ROS_INFO("Successfully connected to %s.", can_device.c_str());
+    ROS_DEBUG("Successfully connected to %s.", can_device.c_str());
   }
 
   socketcan_bridge::TopicToSocketCAN to_socketcan_bridge(&nh, &nh_param, driver);
